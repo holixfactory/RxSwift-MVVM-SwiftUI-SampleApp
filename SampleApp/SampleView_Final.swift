@@ -18,7 +18,7 @@ struct SampleView_Final: View {
 
   var body: some View {
     Button(action: viewModel.inputs.buttonTapped) {
-      Text(viewModel.outputs.title ?? "")
+      Text(viewModel.outputs.title)
     }
   }
 }
@@ -33,5 +33,6 @@ private typealias ObservableSampleViewModel = ObservableViewModel<SampleViewMode
 extension ObservableSampleViewModel {
   convenience init(_ viewModel: SampleViewModelType) {
     self.init(inputs: viewModel.inputs, outputs: viewModel.outputs)
+    self.outputs.title = "Initial value"
   }
 }

@@ -30,6 +30,7 @@ SampleViewModelOutputs {
   var outputs: SampleViewModelOutputs { self }
   
   let title: Driver<String>
+
   init() {
     title = Driver.merge(
       .just("Default title"),

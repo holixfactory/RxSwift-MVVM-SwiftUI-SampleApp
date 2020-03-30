@@ -37,17 +37,25 @@ extension ObservableViewModel {
     @Published private var values: [AnyHashable: Any] = [:]
     private let disposeBag = DisposeBag()
     
-    subscript<O: ObservableConvertibleType>(dynamicMember keyPath: KeyPath<ViewModelOutputs, O>) -> O.Element? {
-      if let value = values[keyPath] as? O.Element {
+    subscript<O: ObservableConvertibleType>(
+      dynamicMember keyPath: KeyPath<ViewModelOutputs, O>) -> O.Element {
+      
+      get {
+        guard let value = values[keyPath] as? O.Element else {
+          fatalError("Value must be initialized")
+        }
         return value
       }
-      outputs[keyPath: keyPath]
-        .asObservable()
-        .subscribe(onNext: { [weak self] value in
-          self?.values[keyPath] = value
-        })
-        .disposed(by: disposeBag)
-      return nil
+      
+      set(newValue) {
+        values[keyPath] = newValue
+        outputs[keyPath: keyPath]
+          .asObservable()
+          .subscribe(onNext: { [weak self] value in
+            self?.values[keyPath] = value
+          })
+          .disposed(by: disposeBag)
+      }
     }
   }
 }
