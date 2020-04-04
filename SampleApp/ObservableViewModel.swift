@@ -28,10 +28,11 @@ final class ObservableViewModel<ViewModelInputs, ViewModelOutputs>: ObservableOb
 
 extension ObservableViewModel {
   @dynamicMemberLookup
-  final class ObservableOutputs<ViewModelOutputs>: ObservableObject {
+  final class ObservableOutputs<ViewModelOutputs>: NSObject, ObservableObject {
     private let outputs: ViewModelOutputs
     init(_ outputs: ViewModelOutputs) {
       self.outputs = outputs
+      super.init()
     }
     
     @Published private var values: [AnyHashable: Any] = [:]
@@ -45,17 +46,17 @@ extension ObservableViewModel {
       return value
     }
     
-    func receive<O: ObservableConvertibleType>(
+    func bind<O: ObservableConvertibleType>(
       _ keyPath: KeyPath<ViewModelOutputs, O>,
       value: O.Element? = nil) {
       if let value = value {
         values[keyPath] = value
       }
+      
       outputs[keyPath: keyPath]
         .asObservable()
-        .subscribe(onNext: { [weak self] value in
-          self?.values[keyPath] = value
-        })
+        .map { $0 as Any }
+        .bind(to: rx[\.values[keyPath]])
         .disposed(by: disposeBag)
     }
   }
