@@ -33,6 +33,6 @@ private typealias ObservableSampleViewModel = ObservableViewModel<SampleViewMode
 extension ObservableSampleViewModel {
   convenience init(_ viewModel: SampleViewModelType) {
     self.init(inputs: viewModel.inputs, outputs: viewModel.outputs)
-    self.outputs.title = "Initial value"
+    outputs.receive(\.title)
   }
 }

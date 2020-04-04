@@ -39,23 +39,24 @@ extension ObservableViewModel {
     
     subscript<O: ObservableConvertibleType>(
       dynamicMember keyPath: KeyPath<ViewModelOutputs, O>) -> O.Element {
-      
-      get {
-        guard let value = values[keyPath] as? O.Element else {
-          fatalError("Value must be initialized")
-        }
-        return value
+      guard let value = values[keyPath] as? O.Element else {
+        fatalError("Value must be initialized")
       }
-      
-      set(newValue) {
-        values[keyPath] = newValue
-        outputs[keyPath: keyPath]
-          .asObservable()
-          .subscribe(onNext: { [weak self] value in
-            self?.values[keyPath] = value
-          })
-          .disposed(by: disposeBag)
+      return value
+    }
+    
+    func receive<O: ObservableConvertibleType>(
+      _ keyPath: KeyPath<ViewModelOutputs, O>,
+      value: O.Element? = nil) {
+      if let value = value {
+        values[keyPath] = value
       }
+      outputs[keyPath: keyPath]
+        .asObservable()
+        .subscribe(onNext: { [weak self] value in
+          self?.values[keyPath] = value
+        })
+        .disposed(by: disposeBag)
     }
   }
 }
